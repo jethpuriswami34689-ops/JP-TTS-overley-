@@ -2,36 +2,81 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JP Gamer TTS Overlay</title>
 <style>
-body {
-  background-color: black;
-  color: white;
-  font-family: 'Poppins', sans-serif;
-  text-align: center;
-  margin-top: 20%;
-}
-h1 {
-  color: red;
-  text-shadow: 0 0 20px red;
-}
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: black;
+    overflow: hidden;
+  }
+  #overlay {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .alert {
+    background: rgba(30,0,0,0.7);
+    border: 2px solid red;
+    color: white;
+    font-size: 24px;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 20px;
+    text-shadow: 0 0 15px red;
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(-150%) scale(0.5); opacity:0; }
+    to { transform: translateX(0) scale(1); opacity:1; }
+  }
+  @keyframes fadeOut {
+    to { opacity:0; }
+  }
 </style>
 </head>
 <body>
-<h1>🔥 JP Gamer TTS Overlay Active 🔥</h1>
-<audio id="tts" autoplay></audio>
-<script>
-const socket = new WebSocket("wss://tts.streamlabs.com/socket.io/?EIO=3&transport=websocket");
 
-socket.onmessage = (event) => {
-  if (event.data.includes("subscribe") || event.data.includes("chat")) {
-    const msg = new SpeechSynthesisUtterance("नया सब्सक्राइबर या चैट संदेश प्राप्त हुआ!");
-    msg.lang = "hi-IN";
-    msg.pitch = 1;
-    msg.rate = 1;
-    speechSynthesis.speak(msg);
-  }
-};
+<div id="overlay"></div>
+
+<script>
+const overlay = document.getElementById('overlay');
+
+// Function to play TTS
+function playTTS(message) {
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = 'hi-IN'; // हिंदी में TTS
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  speechSynthesis.speak(utterance);
+}
+
+// Function to show alert on screen
+function showAlert(message) {
+  const alertBox = document.createElement('div');
+  alertBox.classList.add('alert');
+  alertBox.textContent = message;
+  overlay.appendChild(alertBox);
+
+  playTTS(message);
+
+  // Remove alert after 5s
+  setTimeout(() => {
+    overlay.removeChild(alertBox);
+  }, 5000);
+}
+
+// Demo alerts (replace with your chat/sub events)
+setTimeout(() => { showAlert("🎉 JP Gaming Live Started!"); }, 1000);
+setTimeout(() => { showAlert("👍 Thank you for subscribing!"); }, 4000);
+setTimeout(() => { showAlert("💬 New chat: हेलो JP!"); }, 7000);
 </script>
+
 </body>
 </html>
