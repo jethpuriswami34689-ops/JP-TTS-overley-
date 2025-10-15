@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,75 +7,79 @@
 <style>
   body {
     margin: 0;
+    padding: 0;
+    background: transparent;
     font-family: 'Poppins', sans-serif;
-    background: black;
     overflow: hidden;
   }
-  #overlay {
+
+  #alertBox {
     position: absolute;
     top: 10%;
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
-    pointer-events: none;
-  }
-  .alert {
-    background: rgba(30,0,0,0.7);
-    border: 2px solid red;
+    min-width: 300px;
+    padding: 15px 25px;
+    background: rgba(0,0,0,0.8);
     color: white;
-    font-size: 24px;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 20px;
-    text-shadow: 0 0 15px red;
-    animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 1.3rem;
+    box-shadow: 0 0 15px red;
+    display: none;
+    z-index: 9999;
+    animation: slideDown 0.5s ease forwards;
   }
-  @keyframes slideIn {
-    from { transform: translateX(-150%) scale(0.5); opacity:0; }
-    to { transform: translateX(0) scale(1); opacity:1; }
-  }
-  @keyframes fadeOut {
-    to { opacity:0; }
+
+  @keyframes slideDown {
+    0% { transform: translate(-50%, -100px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
   }
 </style>
 </head>
 <body>
 
-<div id="overlay"></div>
+<div id="alertBox"></div>
 
 <script>
-const overlay = document.getElementById('overlay');
+  // Main function to show alerts
+  function showAlert(name, type) {
+    const alertBox = document.getElementById('alertBox');
+    let message = '';
 
-// Function to play TTS
-function playTTS(message) {
-  const utterance = new SpeechSynthesisUtterance(message);
-  utterance.lang = 'hi-IN'; // हिंदी में TTS
-  utterance.rate = 1;
-  utterance.pitch = 1;
-  speechSynthesis.speak(utterance);
-}
+    if(type === 'subscribe') {
+      message = `${name} just subscribed! 🔔`;
+    } else if(type === 'chat') {
+      message = `${name} sent a message! 💬`;
+    } else {
+      message = `${name} triggered an alert!`;
+    }
 
-// Function to show alert on screen
-function showAlert(message) {
-  const alertBox = document.createElement('div');
-  alertBox.classList.add('alert');
-  alertBox.textContent = message;
-  overlay.appendChild(alertBox);
+    alertBox.innerText = message;
+    alertBox.style.display = 'block';
 
-  playTTS(message);
+    // TTS
+    if('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(message);
+      // Select English female voice
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => voice.lang.includes('en') && voice.name.toLowerCase().includes('female')) || voices[0];
+      utterance.voice = femaleVoice;
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    }
 
-  // Remove alert after 5s
-  setTimeout(() => {
-    overlay.removeChild(alertBox);
-  }, 5000);
-}
+    // Hide after 4 seconds
+    setTimeout(() => {
+      alertBox.style.display = 'none';
+    }, 4000);
+  }
 
-// Demo alerts (replace with your chat/sub events)
-setTimeout(() => { showAlert("🎉 JP Gaming Live Started!"); }, 1000);
-setTimeout(() => { showAlert("👍 Thank you for subscribing!"); }, 4000);
-setTimeout(() => { showAlert("💬 New chat: हेलो JP!"); }, 7000);
+  // Preload voices (important for some mobile browsers)
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
 </script>
 
 </body>
