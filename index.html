@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>JP Gamer TTS Overlay</title>
+<style>
+body {
+  background-color: black;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  margin-top: 20%;
+}
+h1 {
+  color: red;
+  text-shadow: 0 0 20px red;
+}
+</style>
+</head>
+<body>
+<h1>🔥 JP Gamer TTS Overlay Active 🔥</h1>
+<audio id="tts" autoplay></audio>
+<script>
+const socket = new WebSocket("wss://tts.streamlabs.com/socket.io/?EIO=3&transport=websocket");
+
+socket.onmessage = (event) => {
+  if (event.data.includes("subscribe") || event.data.includes("chat")) {
+    const msg = new SpeechSynthesisUtterance("नया सब्सक्राइबर या चैट संदेश प्राप्त हुआ!");
+    msg.lang = "hi-IN";
+    msg.pitch = 1;
+    msg.rate = 1;
+    speechSynthesis.speak(msg);
+  }
+};
+</script>
+</body>
+</html>
