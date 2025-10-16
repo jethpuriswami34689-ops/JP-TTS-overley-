@@ -11,12 +11,12 @@
       background-color: black;
       color: white;
       font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .alert {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    #alertBox {
       background: rgba(255, 0, 0, 0.2);
       border: 2px solid red;
       border-radius: 20px;
@@ -31,16 +31,24 @@
       from { box-shadow: 0 0 10px red; }
       to { box-shadow: 0 0 30px red; }
     }
+    #clickText {
+      position: absolute;
+      bottom: 10%;
+      color: gray;
+      font-size: 1.2em;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div id="alertBox" class="alert"></div>
+  <div id="alertBox"></div>
+  <div id="clickText">🔊 Tap anywhere to enable voice</div>
 
   <script>
     const alertBox = document.getElementById('alertBox');
+    const clickText = document.getElementById('clickText');
     let voices = [];
 
-    // 🔊 Preload voices
     function loadVoices() {
       voices = speechSynthesis.getVoices();
       if (!voices.length) {
@@ -49,7 +57,6 @@
         };
       }
     }
-    loadVoices();
 
     function speak(text) {
       const msg = new SpeechSynthesisUtterance(text);
@@ -78,11 +85,18 @@
       }, 7000);
     }
 
-    // 👇 Manual test (you can remove this)
-    document.body.addEventListener('click', () => {
-      showAlert('Rahul Sharma', 'subscribe');
-      setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 5000);
-    });
+    function enableVoice() {
+      loadVoices();
+      speak("Voice enabled for JP overlay");
+      clickText.style.display = 'none';
+      document.body.removeEventListener('click', enableVoice);
+
+      // 🔥 Test alerts
+      setTimeout(() => showAlert('Rahul Sharma', 'subscribe'), 2000);
+      setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 6000);
+    }
+
+    document.body.addEventListener('click', enableVoice);
   </script>
 </body>
 </html>
