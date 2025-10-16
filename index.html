@@ -1,86 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JP Gamer TTS Overlay</title>
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    font-family: 'Poppins', sans-serif;
-    overflow: hidden;
-  }
-
-  #alertBox {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    min-width: 300px;
-    padding: 15px 25px;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 1.3rem;
-    box-shadow: 0 0 15px red;
-    display: none;
-    z-index: 9999;
-    animation: slideDown 0.5s ease forwards;
-  }
-
-  @keyframes slideDown {
-    0% { transform: translate(-50%, -100px); opacity: 0; }
-    100% { transform: translate(-50%, 0); opacity: 1; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JP English TTS Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+    .alert {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 0, 0, 0.2);
+      border: 2px solid red;
+      border-radius: 20px;
+      padding: 20px 40px;
+      font-size: 2em;
+      text-align: center;
+      box-shadow: 0 0 25px red;
+      display: none;
+      animation: glow 1s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 10px red; }
+      to { box-shadow: 0 0 30px red; }
+    }
+  </style>
 </head>
 <body>
+  <div id="alertBox" class="alert"></div>
 
-<div id="alertBox"></div>
-
-<script>
-  // Main function to show alerts
-  function showAlert(name, type) {
+  <script>
     const alertBox = document.getElementById('alertBox');
-    let message = '';
 
-    if(type === 'subscribe') {
-      message = `${name} just subscribed! 🔔`;
-    } else if(type === 'chat') {
-      message = `${name} sent a message! 💬`;
-    } else {
-      message = `${name} triggered an alert!`;
+    function speak(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'en-IN';
+      msg.voice = speechSynthesis.getVoices().find(v => v.name.toLowerCase().includes('female')) || null;
+      msg.pitch = 1;
+      msg.rate = 1;
+      speechSynthesis.speak(msg);
     }
 
-    alertBox.innerText = message;
-    alertBox.style.display = 'block';
+    function showAlert(name, type, message = '') {
+      let text = '';
+      if (type === 'subscribe') {
+        text = `New subscriber — ${name}!`;
+      } else if (type === 'chat') {
+        text = `${name} says — ${message}`;
+      }
 
-    // TTS
-    if('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      // Select English female voice
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => voice.lang.includes('en') && voice.name.toLowerCase().includes('female')) || voices[0];
-      utterance.voice = femaleVoice;
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      window.speechSynthesis.speak(utterance);
+      alertBox.innerText = text;
+      alertBox.style.display = 'block';
+      speak(text);
+
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+      }, 7000);
     }
 
-    // Hide after 4 seconds
-    setTimeout(() => {
-      alertBox.style.display = 'none';
-    }, 4000);
-  }
-
-  // Preload voices (important for some mobile browsers)
-  window.speechSynthesis.onvoiceschanged = () => {
-    window.speechSynthesis.getVoices();
-  };
-</script>
-
+    // 🔥 Test Example (Remove these lines if not needed)
+    setTimeout(() => showAlert('Rahul Sharma', 'subscribe'), 2000);
+    setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 8000);
+  </script>
 </body>
 </html>
