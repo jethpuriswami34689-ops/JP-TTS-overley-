@@ -38,11 +38,24 @@
 
   <script>
     const alertBox = document.getElementById('alertBox');
+    let voices = [];
+
+    // 🔊 Preload voices
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+      if (!voices.length) {
+        speechSynthesis.onvoiceschanged = () => {
+          voices = speechSynthesis.getVoices();
+        };
+      }
+    }
+    loadVoices();
 
     function speak(text) {
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = 'en-IN';
-      msg.voice = speechSynthesis.getVoices().find(v => v.name.toLowerCase().includes('female')) || null;
+      const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female')) || voices[0];
+      msg.voice = femaleVoice;
       msg.pitch = 1;
       msg.rate = 1;
       speechSynthesis.speak(msg);
@@ -65,9 +78,11 @@
       }, 7000);
     }
 
-    // 🔥 Test Example (Remove these lines if not needed)
-    setTimeout(() => showAlert('Rahul Sharma', 'subscribe'), 2000);
-    setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 8000);
+    // 👇 Manual test (you can remove this)
+    document.body.addEventListener('click', () => {
+      showAlert('Rahul Sharma', 'subscribe');
+      setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 5000);
+    });
   </script>
 </body>
 </html>
