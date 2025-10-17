@@ -1,46 +1,64 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JP Gamer TTS Overlay</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 25vh;
+    }
+    h1 {
+      color: #ff4444;
+      text-shadow: 0 0 20px red;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      border: none;
+      background: #ff4444;
+      color: white;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+    button:hover {
+      background: #ff6666;
+    }
+  </style>
+</head>
 <body>
-  <div id="overlay">
-    … (alert box divs) …
-  </div>
-
-  <!-- Replace “Tap anywhere” with actual button -->
-  <div id="controls" style="pointer-events:auto;">
-    <button id="enableBtn">ENABLE AUDIO</button>
-    <!-- optional test buttons … -->
-  </div>
+  <h1>🎤 JP Gamer TTS Overlay Active 🎮</h1>
+  <button onclick="enableAudio()">🔊 ENABLE AUDIO</button>
 
   <script>
-    // … अन्य code …
-
-    // Use document.onclick (tap anywhere) fallback
-    document.body.addEventListener('click', function oneTap(e) {
-      enableAudio();
-      // after first tap, remove this listener
-      document.body.removeEventListener('click', oneTap);
-    });
-
-    enableBtn.addEventListener('click', enableAudio);
+    let audioEnabled = false;
 
     function enableAudio() {
-      console.log('Enabling audio, priming TTS');
-      refreshVoiceList();
-      if ('speechSynthesis' in window) {
-        const prim = new SpeechSynthesisUtterance('तैयार');
-        if (voice) prim.voice = voice;
-        speechSynthesis.speak(prim);
-      }
+      audioEnabled = true;
+      speak("ओवरले तैयार है। अब नया subscriber आने पर मैं बोलूंगी।");
     }
 
-    function refreshVoiceList(){
+    function speak(text) {
+      if (!audioEnabled) return;
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = "hi-IN";
+      msg.pitch = 1;
+      msg.rate = 0.9;
+
       const voices = speechSynthesis.getVoices();
-      // If voices list is empty, wait and recall
-      if (!voices.length) {
-        setTimeout(refreshVoiceList, 200);
-        return;
-      }
-      // pick voice logic …
+      msg.voice = voices.find(v => v.lang === "hi-IN" && v.name.toLowerCase().includes("female")) || null;
+
+      speechSynthesis.speak(msg);
     }
 
-    // rest of message listener, processEvent etc.
+    // Test subscriber alert
+    setTimeout(() => {
+      speak("नया subscriber — राहुल शर्मा!");
+    }, 5000);
   </script>
 </body>
+</html>
