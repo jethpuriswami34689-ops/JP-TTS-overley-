@@ -1,102 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JP English TTS Overlay</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: black;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    #alertBox {
-      background: rgba(255, 0, 0, 0.2);
-      border: 2px solid red;
-      border-radius: 20px;
-      padding: 20px 40px;
-      font-size: 2em;
-      text-align: center;
-      box-shadow: 0 0 25px red;
-      display: none;
-      animation: glow 1s infinite alternate;
-    }
-    @keyframes glow {
-      from { box-shadow: 0 0 10px red; }
-      to { box-shadow: 0 0 30px red; }
-    }
-    #clickText {
-      position: absolute;
-      bottom: 10%;
-      color: gray;
-      font-size: 1.2em;
-      text-align: center;
-    }
-  </style>
-</head>
 <body>
-  <div id="alertBox"></div>
-  <div id="clickText">🔊 Tap anywhere to enable voice</div>
+  <div id="overlay">
+    … (alert box divs) …
+  </div>
+
+  <!-- Replace “Tap anywhere” with actual button -->
+  <div id="controls" style="pointer-events:auto;">
+    <button id="enableBtn">ENABLE AUDIO</button>
+    <!-- optional test buttons … -->
+  </div>
 
   <script>
-    const alertBox = document.getElementById('alertBox');
-    const clickText = document.getElementById('clickText');
-    let voices = [];
+    // … अन्य code …
 
-    function loadVoices() {
-      voices = speechSynthesis.getVoices();
+    // Use document.onclick (tap anywhere) fallback
+    document.body.addEventListener('click', function oneTap(e) {
+      enableAudio();
+      // after first tap, remove this listener
+      document.body.removeEventListener('click', oneTap);
+    });
+
+    enableBtn.addEventListener('click', enableAudio);
+
+    function enableAudio() {
+      console.log('Enabling audio, priming TTS');
+      refreshVoiceList();
+      if ('speechSynthesis' in window) {
+        const prim = new SpeechSynthesisUtterance('तैयार');
+        if (voice) prim.voice = voice;
+        speechSynthesis.speak(prim);
+      }
+    }
+
+    function refreshVoiceList(){
+      const voices = speechSynthesis.getVoices();
+      // If voices list is empty, wait and recall
       if (!voices.length) {
-        speechSynthesis.onvoiceschanged = () => {
-          voices = speechSynthesis.getVoices();
-        };
+        setTimeout(refreshVoiceList, 200);
+        return;
       }
+      // pick voice logic …
     }
 
-    function speak(text) {
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'en-IN';
-      const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female')) || voices[0];
-      msg.voice = femaleVoice;
-      msg.pitch = 1;
-      msg.rate = 1;
-      speechSynthesis.speak(msg);
-    }
-
-    function showAlert(name, type, message = '') {
-      let text = '';
-      if (type === 'subscribe') {
-        text = `New subscriber — ${name}!`;
-      } else if (type === 'chat') {
-        text = `${name} says — ${message}`;
-      }
-
-      alertBox.innerText = text;
-      alertBox.style.display = 'block';
-      speak(text);
-
-      setTimeout(() => {
-        alertBox.style.display = 'none';
-      }, 7000);
-    }
-
-    function enableVoice() {
-      loadVoices();
-      speak("Voice enabled for JP overlay");
-      clickText.style.display = 'none';
-      document.body.removeEventListener('click', enableVoice);
-
-      // 🔥 Test alerts
-      setTimeout(() => showAlert('Rahul Sharma', 'subscribe'), 2000);
-      setTimeout(() => showAlert('Ankit', 'chat', 'Nice gameplay bro!'), 6000);
-    }
-
-    document.body.addEventListener('click', enableVoice);
+    // rest of message listener, processEvent etc.
   </script>
 </body>
-</html>
