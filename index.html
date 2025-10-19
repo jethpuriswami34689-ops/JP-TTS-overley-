@@ -32,33 +32,45 @@
 </head>
 <body>
   <h1>🎤 JP Gamer TTS Overlay Active 🎮</h1>
-  <button onclick="enableAudio()">🔊 ENABLE AUDIO</button>
+  <button id="enableBtn" onclick="enableAudio()">🔊 ENABLE AUDIO</button>
 
   <script>
     let audioEnabled = false;
 
-    function enableAudio() {
-      audioEnabled = true;
-      speak("ओवरले तैयार है। अब नया subscriber आने पर मैं बोलूंगी।");
-    }
-
     function speak(text) {
-      if (!audioEnabled) return;
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = "hi-IN";
       msg.pitch = 1;
       msg.rate = 0.9;
-
       const voices = speechSynthesis.getVoices();
       msg.voice = voices.find(v => v.lang === "hi-IN" && v.name.toLowerCase().includes("female")) || null;
-
       speechSynthesis.speak(msg);
     }
 
-    // Test subscriber alert
-    setTimeout(() => {
-      speak("नया subscriber — राहुल शर्मा!");
-    }, 5000);
+    function enableAudio() {
+      audioEnabled = true;
+      localStorage.setItem("jpAudioEnabled", "true"); // याद रखेगा कि यूज़र ने अनुमति दी थी
+      document.getElementById("enableBtn").style.display = "none";
+      speak("ओवरले तैयार है। अब नया subscriber आने पर मैं बोलूंगी।");
+      setTimeout(() => speak("नया subscriber — राहुल शर्मा!"), 5000);
+    }
+
+    // पहली बार अनुमति दी थी क्या?
+    window.addEventListener("load", () => {
+      const wasEnabled = localStorage.getItem("jpAudioEnabled") === "true";
+      if (wasEnabled) {
+        // अगर पहले अनुमति दी थी तो अपने-आप चालू हो जाएगा
+        enableAudio();
+      } else {
+        // नहीं दी थी तो बटन दिखेगा
+        document.getElementById("enableBtn").style.display = "inline-block";
+      }
+    });
+
+    // कुछ मोबाइल में voices बाद में लोड होती हैं
+    speechSynthesis.onvoiceschanged = () => {
+      if (audioEnabled) speak("JP Gamer Overlay बोलने के लिए तैयार है।");
+    };
   </script>
 </body>
 </html>
